@@ -1,21 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>SKN44 Game</title>
-</head>
-<body>
-
-<h1>SKN44 Game</h1>
-
-<button onclick="resetGame()">เริ่มใหม่</button>
-<button onclick="showScore()">ดูอันดับคะแนน</button>
-
-<div id="scoreBoard"></div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, set, onValue }
+  import { getDatabase, ref, onValue } 
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
@@ -31,12 +16,6 @@
   const app = initializeApp(firebaseConfig);
   const database = getDatabase(app);
 
-  // ปุ่มเริ่มใหม่
-  window.resetGame = function() {
-    alert("รีเซ็ตเกมแล้ว");
-  };
-
-  // ดูอันดับคะแนน
   window.showScore = function() {
     const scoreRef = ref(database, "scores");
     const board = document.getElementById("scoreBoard");
@@ -50,6 +29,3 @@
     });
   };
 </script>
-
-</body>
-</html>
