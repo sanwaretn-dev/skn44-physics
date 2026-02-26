@@ -120,7 +120,7 @@ button {
 </div>
 
 <script>
-// 🔥 ใส่ Firebase Config ของคุณตรงนี้
+// ❗ ใส่ Firebase Config ของจริงแทน YOUR_PROJECT
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -158,9 +158,11 @@ function startTimer(){
   clearInterval(timer);
   timeLeft = 60;
   document.getElementById("timer").textContent = timeLeft;
+
   timer = setInterval(()=>{
     timeLeft--;
     document.getElementById("timer").textContent = timeLeft;
+
     if(timeLeft <= 0){
       endGame();
     }
@@ -169,10 +171,12 @@ function startTimer(){
 
 function getRandomQuestions(){
   let available = questionPool.filter(q => !usedQuestions.includes(q[0]));
+
   if(available.length === 0){
     usedQuestions = [];
     available = questionPool;
   }
+
   const selected = shuffle(available).slice(0,3);
   selected.forEach(q => usedQuestions.push(q[0]));
   return selected;
@@ -222,9 +226,81 @@ function selectName(card, questions){
 
 function check(questions){
   if(selectedFormula && selectedName){
+
     const correctPair = questions.find(q=>q[0]===selectedFormula.textContent);
+
     if(correctPair && correctPair[1]===selectedName.textContent){
+
       selectedFormula.classList.add("correct");
       selectedName.classList.add("correct");
-      score += 10;
-      
+
+      score += 10;   // ✅ เพิ่มคะแนน
+      document.getElementById("score").textContent = score;
+
+      setTimeout(()=>{
+        createCards();
+      },500);
+
+    } else {
+
+      score -= 5;
+      if(score < 0) score = 0;
+      document.getElementById("score").textContent = score;
+    }
+
+    selectedFormula.classList.remove("selected");
+    selectedName.classList.remove("selected");
+    selectedFormula = null;
+    selectedName = null;
+  }
+}
+
+function endGame(){
+  clearInterval(timer);
+  alert("หมดเวลา! คะแนนของคุณคือ " + score);
+
+  const playerName = prompt("กรอกชื่อของคุณ:");
+  if(playerName){
+    database.ref("scores").push({
+      name: playerName,
+      score: score
+    });
+  }
+}
+
+function loadLeaderboard(){
+  database.ref("scores")
+    .orderByChild("score")
+    .limitToLast(5)
+    .on("value", snapshot=>{
+      const scoresList = document.getElementById("scores");
+      scoresList.innerHTML = "";
+
+      const data = [];
+      snapshot.forEach(child=>{
+        data.push(child.val());
+      });
+
+      data.reverse().forEach(item=>{
+        const li = document.createElement("li");
+        li.textContent = item.name + " - " + item.score;
+        scoresList.appendChild(li);
+      });
+    });
+}
+
+function resetGame(){
+  score = 0;
+  usedQuestions = [];
+  document.getElementById("score").textContent = score;
+  createCards();
+  startTimer();
+}
+
+loadLeaderboard();
+resetGame();
+
+</script>
+
+</body>
+</html>
