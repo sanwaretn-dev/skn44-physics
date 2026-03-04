@@ -102,6 +102,8 @@ button {
 <script>
 
 const questionPool = [
+
+  // ชุดที่ 1 (แก้ไขแล้ว)
   ["R = Nₐkᴮ","ความสัมพันธ์ค่าคงที่"],
   ["Q = CΔT","ความจุความร้อน"],
   ["n = m/M","สูตรหาโมล"],
@@ -111,12 +113,17 @@ const questionPool = [
   ["N = nNₐ","สูตรหาจำนวนอนุภาค"],
   ["Ēk = 3/2 kᴮT","พลังงานจลน์เฉลี่ย"],
   ["Vrms = √(3RT/M)","อัตราเร็ว rms"],
+
+  // ชุดที่ 2
   ["R","ค่าคงที่แก๊ส (8.314 J/mol·K)"],
+
+  // ชุดที่ 3
   ["Q = mL","น้ำแข็งละลาย"],
   ["Q = mcΔT","ให้ความร้อนแล้วอุณหภูมิเปลี่ยน"],
   ["ΔW = PΔV","แก๊สขยายตัว"],
   ["ΔQ = ΔU + ΔW","ระบบรับความร้อนแล้วพลังงานเพิ่ม"],
   ["Vrms","อุณหภูมิสูงขึ้น → ความเร็วโมเลกุลเพิ่ม"]
+
 ];
 
 let usedQuestions = [];
@@ -147,10 +154,12 @@ function startTimer(){
 
 function getRandomQuestions(){
   let available = questionPool.filter(q => !usedQuestions.includes(q[0]));
+
   if(available.length === 0){
     usedQuestions = [];
     available = questionPool;
   }
+
   const selected = shuffle(available).slice(0,3);
   selected.forEach(q => usedQuestions.push(q[0]));
   return selected;
@@ -163,6 +172,7 @@ function createCards(){
 
   const fDiv = document.getElementById("formulas");
   const nDiv = document.getElementById("names");
+
   fDiv.innerHTML = "";
   nDiv.innerHTML = "";
 
@@ -199,15 +209,23 @@ function selectName(card, questions){
 
 function check(questions){
   if(selectedFormula && selectedName){
+
     const correctPair = questions.find(q=>q[0]===selectedFormula.textContent);
 
     if(correctPair && correctPair[1]===selectedName.textContent){
+
       selectedFormula.classList.add("correct");
       selectedName.classList.add("correct");
+
       score += 10;
       document.getElementById("score").textContent = score;
-      setTimeout(()=>{ createCards(); },500);
+
+      setTimeout(()=>{
+        createCards();
+      },500);
+
     } else {
+
       score -= 5;
       if(score < 0) score = 0;
       document.getElementById("score").textContent = score;
@@ -220,25 +238,9 @@ function check(questions){
   }
 }
 
-// 🔥 ส่งคะแนนเข้า Google Form
-function sendScoreToGoogleForm(name, score, timeUsed){
-  const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSes1_h2i01ZW8tJ_V2KXNPGCbATM5V82dgv88CP1C7Pfo3qQw/viewform?usp=pp_url&entry.192518997=${name}&entry.1845927615=${score}&entry.1242709562=${timeUsed}`;
-  window.open(formURL, "_blank");
-}
-
 function endGame(){
   clearInterval(timer);
-
-  let playerName = prompt("กรอกชื่อของคุณ:");
-  if(!playerName){
-    alert("กรุณากรอกชื่อก่อนส่งคะแนน");
-    return;
-  }
-
-  let timeUsed = 90 - timeLeft;
-  sendScoreToGoogleForm(playerName, score, timeUsed);
-
-  alert("ส่งคะแนนเรียบร้อย!");
+  alert("หมดเวลา! คะแนนของคุณคือ " + score);
 }
 
 function resetGame(){
