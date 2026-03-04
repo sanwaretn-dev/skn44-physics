@@ -82,7 +82,7 @@ button {
 
 <div class="stats">
   ⭐ คะแนน: <span id="score">0</span>
-  ⏱ เวลา: <span id="timer">60</span>s
+  ⏱ เวลา: <span id="timer">90</span>s
 </div>
 
 <button onclick="resetGame()">เริ่มใหม่</button>
@@ -103,15 +103,15 @@ button {
 
 const questionPool = [
 
-  // ชุดที่ 1
-  ["Q = mcΔT","ความร้อนจำเพาะ"],
+  // ชุดที่ 1 (แก้ไขแล้ว)
+  ["R = Nₐkᴮ","ความสัมพันธ์ค่าคงที่"],
   ["Q = CΔT","ความจุความร้อน"],
-  ["Q = mL","ความร้อนแฝง"],
+  ["n = m/M","สูตรหาโมล"],
   ["PV = nRT","กฎแก๊สอุดมคติ"],
   ["U = 3/2 nRT","พลังงานภายในแก๊สอุดมคติ"],
-  ["ΔW = PΔV","งานที่แก๊สทำ"],
-  ["ΔQ = ΔU ± ΔW","กฎข้อที่ 1 ของอุณหพลศาสตร์"],
-  ["Ēk = 3/2 kBT","พลังงานจลน์เฉลี่ย"],
+  ["PV = NkᴮT","กฎแก๊สระดับโมเลกุล"],
+  ["N = nNₐ","สูตรหาจำนวนอนุภาค"],
+  ["Ēk = 3/2 kᴮT","พลังงานจลน์เฉลี่ย"],
   ["Vrms = √(3RT/M)","อัตราเร็ว rms"],
 
   // ชุดที่ 2
@@ -130,7 +130,7 @@ let usedQuestions = [];
 let selectedFormula = null;
 let selectedName = null;
 let score = 0;
-let timeLeft = 60;
+let timeLeft = 90;
 let timer;
 
 function shuffle(array) {
@@ -139,7 +139,7 @@ function shuffle(array) {
 
 function startTimer(){
   clearInterval(timer);
-  timeLeft = 60;
+  timeLeft = 90;
   document.getElementById("timer").textContent = timeLeft;
 
   timer = setInterval(()=>{
