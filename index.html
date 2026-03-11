@@ -20,8 +20,14 @@ body{
 }
 
 .game{
-  max-width:600px;
+  max-width:700px;
   margin:auto;
+}
+
+.row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
 }
 
 .card{
@@ -31,10 +37,15 @@ body{
   padding:12px;
   border-radius:10px;
   cursor:pointer;
+  min-width:150px;
 }
 
 .card:hover{
   background:#cde9ff;
+}
+
+.selected{
+  background:#ffe082;
 }
 
 .correct{
@@ -63,9 +74,11 @@ button{
 
 <div class="game">
 
-<h3 id="formula"></h3>
+<h3>เลือกสูตร</h3>
+<div id="topChoices" class="row"></div>
 
-<div id="choices"></div>
+<h3>เลือกความหมาย</h3>
+<div id="bottomChoices" class="row"></div>
 
 </div>
 
@@ -90,10 +103,14 @@ const questionPool = [
 ["0°C","273 K"]
 ];
 
-let recentQuestions = [];
-let currentAnswer = "";
-let score = 0;
-let timeLeft = 90;
+let recentQuestions=[];
+let correctPair;
+
+let selectedTop=null;
+let selectedBottom=null;
+
+let score=0;
+let timeLeft=90;
 let timer;
 
 function shuffle(arr){
@@ -104,7 +121,7 @@ function startTimer(){
 
  clearInterval(timer);
 
- timeLeft = 90;
+ timeLeft=90;
  document.getElementById("timer").textContent=timeLeft;
 
  timer=setInterval(()=>{
@@ -122,45 +139,54 @@ function startTimer(){
 
 function newQuestion(){
 
+ selectedTop=null;
+ selectedBottom=null;
+
  let available = questionPool.filter(q =>
    !recentQuestions.includes(q[0])
  );
 
- if(available.length === 0){
-   recentQuestions = [];
-   available = questionPool;
+ if(available.length===0){
+  recentQuestions=[];
+  available=questionPool;
  }
 
- let question = available[Math.floor(Math.random()*available.length)];
+ correctPair = available[Math.floor(Math.random()*available.length)];
 
- recentQuestions.push(question[0]);
+ recentQuestions.push(correctPair[0]);
 
- if(recentQuestions.length > 3){
-   recentQuestions.shift();
+ if(recentQuestions.length>4){
+  recentQuestions.shift();
  }
 
- currentAnswer = question[1];
+ // top choices
+ let top = [correctPair[0]];
+ let othersTop = shuffle(questionPool.filter(q=>q[0]!==correctPair[0])).slice(0,2);
+ othersTop.forEach(o=>top.push(o[0]));
+ shuffle(top);
 
- document.getElementById("formula").textContent = question[0];
+ // bottom choices
+ let bottom = [correctPair[1]];
+ let othersBottom = shuffle(questionPool.filter(q=>q[1]!==correctPair[1])).slice(0,2);
+ othersBottom.forEach(o=>bottom.push(o[1]));
+ shuffle(bottom);
 
- let wrong = questionPool
-  .filter(q=>q[1]!==question[1])
-  .map(q=>q[1]);
+ renderChoices("topChoices",top,"top");
+ renderChoices("bottomChoices",bottom,"bottom");
+}
 
- shuffle(wrong);
+function renderChoices(id,data,type){
 
- let choices = shuffle([question[1], wrong[0], wrong[1]]);
-
- const div = document.getElementById("choices");
+ const div=document.getElementById(id);
  div.innerHTML="";
 
- choices.forEach(choice=>{
+ data.forEach(text=>{
 
   const card=document.createElement("div");
   card.className="card";
-  card.textContent=choice;
+  card.textContent=text;
 
-  card.onclick=()=>checkAnswer(card,choice);
+  card.onclick=()=>selectCard(card,text,type);
 
   div.appendChild(card);
 
@@ -168,24 +194,42 @@ function newQuestion(){
 
 }
 
-function checkAnswer(card,choice){
+function selectCard(card,text,type){
 
- if(choice===currentAnswer){
+ if(type==="top"){
+  document.querySelectorAll("#topChoices .card").forEach(c=>c.classList.remove("selected"));
+  card.classList.add("selected");
+  selectedTop=text;
+}
 
-  card.classList.add("correct");
+if(type==="bottom"){
+  document.querySelectorAll("#bottomChoices .card").forEach(c=>c.classList.remove("selected"));
+  card.classList.add("selected");
+  selectedBottom=text;
+}
 
-  score+=10;
+checkMatch();
+
+}
+
+function checkMatch(){
+
+ if(selectedTop && selectedBottom){
+
+  if(selectedTop===correctPair[0] && selectedBottom===correctPair[1]){
+
+   score+=10;
+
+  }else{
+
+   score-=5;
+   if(score<0) score=0;
+
+  }
 
   document.getElementById("score").textContent=score;
 
   setTimeout(newQuestion,500);
-
- }else{
-
-  score-=5;
-  if(score<0) score=0;
-
-  document.getElementById("score").textContent=score;
 
  }
 
@@ -199,7 +243,6 @@ function resetGame(){
  document.getElementById("score").textContent=score;
 
  startTimer();
-
  newQuestion();
 
 }
